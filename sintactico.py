@@ -11,7 +11,9 @@ precedence = (
     ('left', 'NE'),
     ('left', 'TIMES', 'DIVIDE'),
     ('right', 'TERNARY'),  # Operador ternario
-    ('right', 'DECREMENT') # Operador de decremento
+    ('right', 'DECREMENT'), # Operador de decremento
+    ('right', 'INCREMENT'),
+    ('right', 'LNOT')
 )
 
 # Reglas de gramática
@@ -26,6 +28,10 @@ def p_statements(p):
         p[0] = p[1] + [p[2]]
     else:
         p[0] = [p[1]]
+
+def p_statement_increment(p):
+    'statement : ID INCREMENT SEMICOLON'
+    p[0] = ('increment_stmt', p[1])
 
 def p_statement_declaration(p):
     '''statement : INT ID SEMICOLON
@@ -166,7 +172,20 @@ def p_elements_empty(p):
 
 def p_error(p):
     print("Error sintáctico en '%s'" % p.value if p else "Error en entrada")
-    
+
+def p_expression_logical_not(p):
+    'expression : LNOT expression'
+    p[0] = ('not', p[2])
+
+def p_expression_increment(p):
+    'expression : ID INCREMENT'
+    p[0] = ('increment', p[1], '--')
+
+def p_statement_increment(p):
+    'statement : ID INCREMENT SEMICOLON'
+    p[0] = ('decrement_stmt', p[1])
+
+
 def p_expression_decrement(p):
     'expression : ID DECREMENT'
     p[0] = ('decrement', p[1], '--')  # Agregamos el símbolo para mayor claridad
