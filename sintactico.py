@@ -50,8 +50,24 @@ def p_statement_assignment(p):
     p[0] = ('assignment, =', p[1], p[3])
 
 def p_statement_for(p):
-    'statement : FOR LPAREN expression SEMICOLON expression SEMICOLON expression RPAREN statement'
-    p[0] = ('for', p[3], p[5], p[7], p[9])
+    '''statement : FOR LPAREN INT ID EQUALS NUMBER SEMICOLON expression SEMICOLON expression RPAREN statement
+                | FOR LPAREN ID EQUALS NUMBER SEMICOLON expression SEMICOLON expression RPAREN statement'''
+    if len(p) == 13:  # Con declaración de variable (int i = 0;)
+        p[0] = ('for', ('declaration', p[3], p[4], p[6]), p[8], p[10], p[12])
+    else:  # Sin declaración de variable (i = 0;)
+        p[0] = ('for', ('assignment', p[3], p[5]), p[7], p[9], p[11])
+
+# También necesitamos asegurarnos que expression pueda manejar incrementos
+def p_expression_increment(p):
+    '''expression : ID PLUS PLUS
+                 | ID PLUS EQUALS NUMBER
+                 | ID EQUALS ID PLUS NUMBER'''
+    if len(p) == 4:  # i++
+        p[0] = ('increment', p[1])
+    elif len(p) == 5:  # i += 1
+        p[0] = ('increment_by', p[1], p[4])
+    else:  # i = i + 1
+        p[0] = ('increment_assign', p[1], p[3], p[5])
 
 def p_statement_while(p):
     'statement : WHILE LPAREN expression RPAREN statement'
