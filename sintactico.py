@@ -97,6 +97,8 @@ def p_statement_expression(p):
 
 def p_expression_binop(p):
     '''expression : expression PLUS term
+                  | expression PLUS expression
+                  | expression MINUS expression
                   | expression MINUS term
                   | expression LOR term
                   | expression LAND term
