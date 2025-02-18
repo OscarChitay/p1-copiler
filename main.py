@@ -16,6 +16,20 @@ def agregar_a_tabla(token, tipo, valor=None):
     tabla_simbolos[token] = {"tipo": tipo}
 
 
+def limpiar_resultados():
+    """
+        limpiar toda la pantalla
+    """
+    editor.delete("1.0", tk.END)
+    resultado_tokens.delete("1.0", tk.END)
+    resultado_arbol.delete("1.0", tk.END)
+    tabla_simbolos.clear()
+
+    # Limpiar la tabal de simbolos en la interfaz
+    for item in tree_tabla_simbolos.get_children():
+        tree_tabla_simbolos.delete(item)
+
+
 def realizar_analisis_lexico():
     """
     Realiza el análisis léxico del código ingresado en el editor.
@@ -97,6 +111,11 @@ btn_lexico.pack(side=tk.LEFT, padx=5)
 btn_sintactico = tk.Button(frame_botones, text="Análisis Sintáctico", command=realizar_analisis_sintactico,
                            bg="#007acc", fg="white", font=("Consolas", 10))
 btn_sintactico.pack(side=tk.LEFT, padx=5)
+# btn_cls
+btn_sintactico = tk.Button(frame_botones, text="clear", command=limpiar_resultados,
+                           bg="#007acc", fg="white", font=("Consolas", 10))
+btn_sintactico.pack(side=tk.LEFT, padx=5)
+
 btn_salir = tk.Button(frame_botones, text="Salir", command=ventana.quit, bg="#f14c4c", fg="white",
                       font=("Consolas", 10))
 btn_salir.pack(side=tk.RIGHT, padx=5)
