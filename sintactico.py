@@ -181,7 +181,7 @@ def p_expression_logical_not(p):
 
 def p_expression_increment(p):
     'expression : ID INCREMENT'
-    p[0] = ('increment', p[1], '--')
+    p[0] = ('increment', p[1], '++')
 
 def p_statement_increment(p):
     'statement : ID INCREMENT SEMICOLON'

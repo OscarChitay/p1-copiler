@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import scrolledtext
+
+import semantico
 from lexico import lexer
 from sintactico import parser
 import diagram as dg
@@ -57,6 +59,7 @@ def realizar_analisis_sintactico():
     resultado_arbol.delete("1.0", tk.END)
     try:
         resultado = parser.parse(codigo)
+        semantico.analizar_semantica(resultado, tabla_simbolos)
         resultado_arbol.insert(tk.END, f"--- Árbol Sintáctico ---\n{resultado}\n")
 
         # Dibujar el árbol con diagram.py
