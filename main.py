@@ -6,6 +6,8 @@ import semantico
 from lexico import lexer
 from sintactico import parser
 import diagram as dg
+import generador_codigo as gc
+
 
 # Diccionario para la tabla de símbolos
 tabla_simbolos = {}
@@ -76,6 +78,27 @@ def actualizar_tabla_simbolos():
     for simbolo, datos in tabla_simbolos.items():
         tree_tabla_simbolos.insert("", "end", values=(simbolo, datos["tipo"]))
 
+def realizar_generador_codigo_intermedio():
+    """
+    Esta función se invoca cuando el usuario hace clic en el botón "Generar Código Intermedio".
+    Llama al generador de código intermedio, que genera TAC y SSA, y muestra los resultados en una ventana emergente.
+    """
+    # Asegúrate de tener el AST generado desde el análisis sintáctico
+    try:
+        # El AST es el resultado del análisis sintáctico y se obtiene del parser
+        codigo = editor.get("1.0", tk.END).strip()
+        resultado_arbol.delete("1.0", tk.END)
+
+        # Realiza el análisis sintáctico para obtener el AST
+        resultado = parser.parse(codigo)
+
+        # Ahora llama al generador de código intermedio, pasando el AST
+        gc.generar_codigo_intermedio(resultado)
+
+    except Exception as e:
+        # Si ocurre un error durante la generación, se muestra el error en la ventana
+        resultado_arbol.insert(tk.END, f"Error al generar código intermedio: {e}\n")
+
 
 # Crear la ventana principal
 ventana = tk.Tk()
@@ -108,17 +131,29 @@ scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
 # Botones
 frame_botones = tk.Frame(frame_izquierdo, bg="#1e1e1e")
 frame_botones.pack(fill=tk.X, pady=10)
+
+# btn_lexico
+
 btn_lexico = tk.Button(frame_botones, text="Análisis Léxico", command=realizar_analisis_lexico, bg="#007acc",
                        fg="white", font=("Consolas", 10))
 btn_lexico.pack(side=tk.LEFT, padx=5)
+
+# btn_sintactico
 btn_sintactico = tk.Button(frame_botones, text="Análisis Sintáctico", command=realizar_analisis_sintactico,
                            bg="#007acc", fg="white", font=("Consolas", 10))
 btn_sintactico.pack(side=tk.LEFT, padx=5)
+
+# btn_codigo_intermedio
+btn_generador = tk.Button(frame_botones, text="Generador de Código", command=realizar_generador_codigo_intermedio,
+                           bg="#007acc", fg="white", font=("Consolas", 10))
+btn_generador.pack(side=tk.LEFT, padx=5)
+
 # btn_cls
 btn_sintactico = tk.Button(frame_botones, text="clear", command=limpiar_resultados,
                            bg="#007acc", fg="white", font=("Consolas", 10))
 btn_sintactico.pack(side=tk.LEFT, padx=5)
 
+# btn_salir
 btn_salir = tk.Button(frame_botones, text="Salir", command=ventana.quit, bg="#f14c4c", fg="white",
                       font=("Consolas", 10))
 btn_salir.pack(side=tk.RIGHT, padx=5)
