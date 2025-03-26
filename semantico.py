@@ -13,11 +13,14 @@ def analizar_semantica(arbol, tabla_simbolos):
     # Indicador de si se encontraron errores (opcional, para posibles usos futuros)
     errors_found = False
 
+    # Lista global para acumular los errores semánticos
+    errores_semanticos = []
+
     def error(mensaje):
-        """Imprime un mensaje de error semántico."""
-        nonlocal errors_found
-        errors_found = True
-        print(f"Error semántico: {mensaje}")
+        """Acumula un mensaje de error semántico en la lista de errores."""
+
+        errores_semanticos.append(mensaje)  # Añade el mensaje a la lista de errores
+        print(f"Error semántico: {mensaje}")  # Opcional: Mantener impresión en consola
 
     def find_variable_type(name):
         """
@@ -654,7 +657,7 @@ def analizar_semantica(arbol, tabla_simbolos):
 
     # --- Inicio del análisis semántico ---
     if arbol is None:
-        return  # Si no hay árbol (posible error sintáctico previo), no hacer nada
+        return errores_semanticos # Si no hay árbol (posible error sintáctico previo), no hacer nada
 
     # El AST del programa se espera como ('program', [lista_de_sentencias])
     if isinstance(arbol, tuple) and arbol[0] == 'program':
@@ -667,3 +670,5 @@ def analizar_semantica(arbol, tabla_simbolos):
                 analyze_statement(stmt)
         else:
             analyze_statement(arbol)
+
+    return errores_semanticos

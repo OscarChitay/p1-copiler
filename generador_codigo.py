@@ -404,13 +404,9 @@ def generar_codigo_intermedio(ast):
     - Muestra los resultados en una ventana independiente con capacidad de scroll.
     """
     # Generar AST visual con graphviz (diagram.py)
-    try:
-        dot = diagram.dibujar_arbol_completo(ast)
-        # Renderizar el AST a un archivo de imagen (PNG)
-        ruta_imagen = dot.render(filename="AST", format="png", cleanup=True)
-    except Exception as e:
-        ruta_imagen = None
-        print(f"Error al generar imagen del AST: {e}")
+
+    ruta_imagen = r"C:\Users\monje\PycharmProjects\p1-copiler\Arbol_Sintactico.png"
+
 
     # Generar código de tres direcciones (TAC) del AST
     lista_TAC = _generar_TAC_desde_AST(ast)
