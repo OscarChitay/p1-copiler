@@ -9,6 +9,10 @@ from sintactico import parser
 import diagram as dg
 import generador_codigo as gc
 
+import optimizador
+import generador_nasm
+import subprocess
+
 
 # Diccionario para la tabla de símbolos
 tabla_simbolos = {}
@@ -112,10 +116,105 @@ def realizar_generador_codigo_intermedio():
     except Exception as e:
         resultado_arbol.insert(tk.END, f"Error al generar código intermedio: {e}\n")
 
+def realizar_optimizacion():
+    """
+    Cuando el usuario hace clic en "Optimizar Código".
+    Genera el TAC optimizado y lo muestra en una ventana nueva.
+    """
+    codigo_fuente = editor.get("1.0", tk.END).strip()
+    # Verificar que no hayan errores semánticos pendientes antes de compilar
+    if resultado_errores.get("1.0", "end-1c").strip() != "":
+        msgbox.showerror("Errores presentes", "Por favor corregí los errores antes de optimizar.")
+        return
+    try:
+        ast = parser.parse(codigo_fuente)
+    except Exception as e:
+        msgbox.showerror("Error de Sintaxis", f"No se pudo generar AST: {e}")
+        return
+    # Generar TAC y optimizarlo
+    lista_TAC = gc._generar_TAC_desde_AST(ast)
+    lista_opt = optimizador.optimizar_tac(lista_TAC)
+    # Mostrar TAC optimizado en una ventana emergente
+    ventana_opt = tk.Toplevel()
+    ventana_opt.title("Código TAC Optimizado")
+    text_opt = scrolledtext.ScrolledText(ventana_opt, width=80, height=20)
+    text_opt.pack(fill=tk.BOTH, expand=True)
+    text_opt.insert(tk.END, "--- Código Intermedio Optimizado ---\n")
+    for instr in lista_opt:
+        text_opt.insert(tk.END, instr + "\n")
+    # Guardar TAC optimizado a archivo (opcional)
+    with open("codigo_opt.txt", "w") as f:
+        for instr in lista_opt:
+            f.write(instr + "\n")
+
+def realizar_generar_codigo_maquina():
+    """
+    Cuando el usuario hace clic en "Generar Código de Máquina".
+    Genera el archivo ensamblador NASM (.asm) a partir del código fuente.
+    """
+    codigo_fuente = editor.get("1.0", tk.END).strip()
+    if resultado_errores.get("1.0", "end-1c").strip() != "":
+        msgbox.showerror("Errores presentes", "Corregí los errores antes de generar el ensamblador.")
+        return
+    try:
+        ast = parser.parse(codigo_fuente)
+    except Exception as e:
+        msgbox.showerror("Error de Sintaxis", f"Parsing falló: {e}")
+        return
+    lista_TAC = gc._generar_TAC_desde_AST(ast)
+    lista_opt = optimizador.optimizar_tac(lista_TAC)
+    generador_nasm.generar_codigo_maquina(lista_opt)  # Esto crea el archivo codigo.asm
+    msgbox.showinfo("Código de Máquina", "Archivo 'codigo.asm' generado con éxito.")
+
+def realizar_compilar_ejecutable():
+    """
+    Cuando el usuario hace clic en "Compilar y Ejecutar .EXE".
+    Ensambla el código, linkea el ejecutable y lo ejecuta.
+    """
+    codigo_fuente = editor.get("1.0", tk.END).strip()
+    if resultado_errores.get("1.0", "end-1c").strip() != "":
+        msgbox.showerror("Errores presentes", "Hay errores semánticos; no se puede compilar.")
+        return
+    try:
+        ast = parser.parse(codigo_fuente)
+    except Exception as e:
+        msgbox.showerror("Error de Sintaxis", f"Parsing falló: {e}")
+        return
+    # Generar TAC optimizado y código ensamblador
+    lista_TAC = gc._generar_TAC_desde_AST(ast)
+    lista_opt = optimizador.optimizar_tac(lista_TAC)
+    generador_nasm.generar_codigo_maquina(lista_opt)
+    # Llamar a NASM y GCC para producir el .exe
+    try:
+        # crear archivo .obj del programa
+        resultado1 = subprocess.run(["nasm",
+                                     "-f",
+                                     "win32",
+                                     r"C:\Users\monje\PycharmProjects\p1-copiler\codigo.asm",
+                                     "-o",
+                                     r"C:\Users\monje\PycharmProjects\p1-copiler\codigo.obj"],
+                                    check=True)
+        # crear el programa .exe
+        resultado2 = subprocess.run(["gcc",
+                                     "-m32",
+                                     r"C:\Users\monje\PycharmProjects\p1-copiler\codigo.obj",
+                                     "-o",
+                                     r"C:\Users\monje\PycharmProjects\p1-copiler\programa.exe"],
+                                    check=True)
+    except Exception as e:
+        msgbox.showerror("Error de Compilación", f"Ocurrió un error al compilar: {e}")
+        return
+    # Ejecutar el .exe resultante
+    try:
+        subprocess.run([r"C:\Users\monje\PycharmProjects\p1-copiler\programa.exe"], check=True)
+        msgbox.showinfo("Ejecución", "El programa se ejecutó exitosamente.")
+    except Exception as e:
+        msgbox.showerror("Error al ejecutar", f"No se pudo ejecutar el .exe: {e}")
+
 
 # Crear la ventana principal
 ventana = tk.Tk()
-ventana.title("Analizador Léxico y Sintáctico")
+ventana.title("Compilador")
 ventana.geometry("1600x800")
 
 # Marco principal
@@ -169,6 +268,23 @@ btn_sintactico.pack(side=tk.LEFT, padx=5)
 btn_generador = tk.Button(frame_botones, text="Generador de Código", command=realizar_generador_codigo_intermedio,
                            bg="#007acc", fg="white", font=("Consolas", 10))
 btn_generador.pack(side=tk.LEFT, padx=5)
+
+# optimizador
+btn_opt = tk.Button(frame_botones, text="Optimizar Código", command=realizar_optimizacion,
+                    bg="#007acc", fg="white", font=("Consolas", 10))
+
+btn_opt.pack(side=tk.LEFT, padx=5)
+
+#nasm
+btn_nasm = tk.Button(frame_botones, text="Generar Código de Máquina", command=realizar_generar_codigo_maquina,
+                     bg="#007acc", fg="white", font=("Consolas", 10))
+btn_nasm.pack(side=tk.LEFT, padx=5)
+
+#exe
+btn_exe = tk.Button(frame_botones, text="Compilar y Ejecutar .EXE", command=realizar_compilar_ejecutable,
+                    bg="#007acc", fg="white", font=("Consolas", 10))
+btn_exe.pack(side=tk.LEFT, padx=5)
+
 
 # btn_cls
 btn_sintactico = tk.Button(frame_botones, text="clear", command=limpiar_resultados,
