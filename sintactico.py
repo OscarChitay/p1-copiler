@@ -85,7 +85,7 @@ def p_statement_block(p):
 
 def p_statement_if(p):
     '''statement : IF LPAREN expression RPAREN statement
-                 | IF LPAREN expression RPAREN statement ELSE statement'''
+                 | IF LPAREN expression RPAREN statement ELSE statement'''  
     if len(p) == 6:
         p[0] = ('if', p[3], p[5])
     else:
@@ -199,6 +199,18 @@ def p_statement_decrement(p):
 def p_expression_ternary(p):
     'expression : expression TERNARY expression COLON expression'
     p[0] = ('ternary', p[1], p[3], p[5])
+
+def p_statement_print(p):
+    'statement : PRINT LPAREN args RPAREN SEMICOLON'
+    p[0] = ('print', p[3])   # Nodo AST: ('print', [expr1, expr2, ...])
+
+def p_args_multiple(p):
+    'args : args COMMA expression'
+    p[0] = p[1] + [p[3]]
+
+def p_args_single(p):
+    'args : expression'
+    p[0] = [p[1]]
 
 
 # Construir el analizador sintáctico

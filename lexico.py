@@ -12,6 +12,7 @@ words_reserved = {
     'bool': 'BOOL',
     'true': 'TRUE',
     'false': 'FALSE',
+    'print': 'PRINT',
 }
 
 # Lista de tokens añadiendo LOR y LAND

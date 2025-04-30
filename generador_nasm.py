@@ -46,14 +46,34 @@ def generar_codigo_maquina(lista_tac):
                     # Token es una variable temporal o identificador no numérico
                     if token not in variables:
                         variables[token] = "INT"
+
+        # --- NUEVO ---  soportar cadenas en instrucciones PRINT
+        if instr.startswith("PRINT"):
+            token = instr[5:].strip()          # lo que viene después de PRINT
+            if token.startswith("\"") and token.endswith("\""):
+                if token not in string_consts:             # aún no registrada
+                    label = f"str_{len(string_consts)+1}"
+                    contenido = token.strip("\"")
+                    string_consts[token] = label
+                    data_lines.append(f'{label} db "{contenido}", 0')
+
     # Construir sección .data y .bss
+    usa_fmt_int = any(instr.startswith("PRINT ") and not instr.split()[1].startswith('"')
+                      for instr in lista_tac)
     asm_lines.append("section .data")
     asm_lines.extend(data_lines)
+    # --- NUEVO ---
+    if usa_fmt_int:
+        asm_lines.append('fmt_int db "%d", 10, 0')  # "%d\\n"
+    # ---------------
     asm_lines.append("section .bss")
+
     for nombre_var in variables:
         if nombre_var.startswith("L"):
             continue  # omitir etiquetas de salto como variables
         asm_lines.append(f"{nombre_var} resd 1")  # reservar 4 bytes (un entero 32-bit)
+
+    asm_lines.append("extern _printf")
     asm_lines.append("section .text")
     asm_lines.append("global _main")
     asm_lines.append("_main:")
@@ -88,7 +108,25 @@ def generar_codigo_maquina(lista_tac):
             asm_lines.append("    cmp eax, 0")
             asm_lines.append(f"    je {etiqueta}")
             continue
+
+        # --- NUEVO ---  traducción de PRINT
+        if instr.startswith("PRINT"):
+            arg = instr[5:].strip()
+
+            if arg.startswith("\""):                  # imprimir cadena literal
+                label = string_consts[arg]            # etiqueta en .data
+                asm_lines.append(f"    push {label}") # push dirección de la cadena
+                asm_lines.append("    call _printf")
+                asm_lines.append("    add esp, 4")    # limpiar la pila
+            else:                                     # imprimir variable entera
+                asm_lines.append(f"    push dword [{arg}]")   # valor de la variable
+                asm_lines.append("    push fmt_int")          # formato "%d\\n"
+                asm_lines.append("    call _printf")
+                asm_lines.append("    add esp, 8")            # limpiar la pila
+            continue
+
         # Procesar asignación u operación: formato "dest = expr"
+
         if "=" in instr:
             dest, expr = instr.split("=", 1)
             dest = dest.strip()

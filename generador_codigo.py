@@ -293,6 +293,12 @@ def _generar_TAC_desde_AST(ast):
                 bloque = node[1]
                 gen_stmt(bloque)
 
+            elif etiqueta == "print":
+                # node = ('print', [expr1, expr2, ...])
+                for arg in node[1]:
+                    valor = gen_expr(arg)  # genera el valor (p.ej. "\"texto\"" o "c")
+                    tac.append(f"PRINT {valor}")
+
             else:
                 # Cualquier otro tipo de nodo de sentencia no contemplado explícitamente
                 # (Incluyendo casos como 'increment', 'increment_by' en contexto de sentencia)
