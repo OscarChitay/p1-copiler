@@ -1,4 +1,5 @@
 import ply.lex as lex
+import ply.ctokens
 
 words_reserved = {
     'if': 'IF',
@@ -7,7 +8,11 @@ words_reserved = {
     'while': 'WHILE',
     'int': 'INT',
     'float': 'FLOAT',
-    'string': 'STRING'
+    'string': 'STRING',
+    'bool': 'BOOL',
+    'true': 'TRUE',
+    'false': 'FALSE',
+    'print': 'PRINT',
 }
 
 # Lista de tokens añadiendo LOR y LAND
@@ -25,7 +30,10 @@ tokens = [
     'EQ', 'NE',
     'DECREMENT',  # TOken de decremento --
     'TERNARY' ,    # Token ternary ?
-    'COLON'
+    'COLON',
+    'LE', 'GE',
+    'LNOT',       # Token para operador lógico NOT (!)
+    'INCREMENT'   # Token para operador incremento (++)
 ] + list(words_reserved.values())
 
 # Reglas para los tokens
@@ -51,6 +59,10 @@ t_NE = r'!='
 t_DECREMENT = r'--'
 t_TERNARY = r'\?'
 t_COLON = r':'
+t_LE = r'<='   # Nuevo operador menor o igual
+t_GE = r'>='   # Nuevo operador mayor o igual
+t_LNOT = r'!'  # NOT lógico
+t_INCREMENT = r'\+\+'  # Operador incremento ++
 
 
 # Reglas para números
