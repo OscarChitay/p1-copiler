@@ -1,376 +1,105 @@
-# Analizador Léxico y Sintáctico
+# Educational Compiler Pipeline
 
-Un compilador básico desarrollado en Python que implementa análisis léxico y sintáctico para un lenguaje de programación simplificado, con interfaz gráfica y generación de árboles sintácticos visuales.
+A collaborative desktop application that demonstrates the main stages of a compiler for a simplified programming language. The project combines lexical, syntactic, and semantic analysis with intermediate-code generation, optimization, NASM output, and a Tkinter interface.
 
-![Analizador](https://img.shields.io/badge/Python-3.x-blue.svg)
-![PLY](https://img.shields.io/badge/PLY-Lexical%20Analysis-green.svg)
-![Tkinter](https://img.shields.io/badge/GUI-Tkinter-orange.svg)
-![Graphviz](https://img.shields.io/badge/Visualization-Graphviz-red.svg)
+> This repository is a fork of the original team project maintained by [MonjeBmo](https://github.com/MonjeBmo/p1-copiler). See [Credits and contributions](#credits-and-contributions) for attribution.
 
-## 📋 Tabla de Contenidos
+## Features
 
-- [Características](#características)
-- [Requisitos del Sistema](#requisitos-del-sistema)
-- [Instalación](#instalación)
-- [Uso](#uso)
-- [Gramática Soportada](#gramática-soportada)
-- [Componentes del Proyecto](#componentes-del-proyecto)
-- [Ejemplos de Código](#ejemplos-de-código)
-- [Análisis Implementado](#análisis-implementado)
-- [Contribución](#contribución)
-- [Autor](#autor)
+- Tokenization and reserved-word recognition with PLY
+- Grammar validation and abstract syntax tree generation
+- Semantic checks and symbol table management
+- Graphviz-based syntax tree visualization
+- Intermediate-code generation and optimization
+- NASM assembly output
+- Windows executable compilation workflow
+- Desktop interface for editing code and inspecting each compiler stage
 
-## ✨ Características
+## Technology
 
-- **Análisis Léxico Completo**: Reconocimiento de tokens, palabras reservadas, operadores y literales
-- **Análisis Sintáctico**: Construcción de árboles sintácticos abstractos (AST)
-- **Interfaz Gráfica Moderna**: Editor de código con resaltado y áreas de resultados
-- **Visualización de Árboles**: Generación automática de diagramas de árboles sintácticos
-- **Tabla de Símbolos**: Seguimiento de identificadores y sus tipos
-- **Detección de Errores**: Manejo de errores léxicos y sintácticos
-- **Soporte Completo de Operadores**: Aritméticos, lógicos, comparación y ternarios
+- Python
+- [PLY](https://www.dabeaz.com/ply/) for lexical and syntactic analysis
+- Tkinter for the desktop interface
+- [Graphviz](https://graphviz.org/) for syntax tree visualization
+- Pillow for image handling
+- NASM and GCC for the optional executable-generation workflow
 
-## 🔧 Requisitos del Sistema
+## Project structure
 
-- Python 3.7 o superior
-- PLY (Python Lex-Yacc)
-- Tkinter (incluido con Python)
-- Graphviz
-- python-graphviz
+```text
+.
+├── main.py              # Desktop interface and workflow orchestration
+├── lexico.py            # Lexer and token definitions
+├── sintactico.py        # Grammar and parser
+├── semantico.py         # Semantic analysis and symbol handling
+├── diagram.py           # AST visualization
+├── generador_codigo.py  # Intermediate-code generation
+├── optimizador.py       # Intermediate-code optimization
+└── generador_nasm.py    # NASM output generation
+```
 
-## 📦 Instalación
+## Requirements
 
-1. **Clonar el repositorio:**
+- Python 3
+- Tkinter, normally included with Python on Windows
+- Graphviz installed and available on `PATH`
+- NASM and GCC only if you want to generate and run a Windows executable
+
+Install the Python dependencies:
+
+```bash
+python -m pip install ply graphviz pillow
+```
+
+Graphviz also requires its system application. Download it from [graphviz.org/download](https://graphviz.org/download/) or install it with your operating system's package manager.
+
+## Run locally
+
 ```bash
 git clone https://github.com/OscarChitay/p1-copiler.git
 cd p1-copiler
-```
-
-2. **Instalar dependencias:**
-```bash
-pip install ply graphviz
-```
-
-3. **Instalar Graphviz (sistema):**
-
-   **Windows:**
-   - Descargar desde: https://graphviz.org/download/
-   - Agregar al PATH del sistema
-
-   **Linux (Ubuntu/Debian):**
-   ```bash
-   sudo apt-get install graphviz
-   ```
-
-   **macOS:**
-   ```bash
-   brew install graphviz
-   ```
-
-## 🚀 Uso
-
-1. **Ejecutar la aplicación:**
-```bash
 python main.py
 ```
 
-2. **Escribir código** en el editor (panel izquierdo)
+Use the interface to enter source code and inspect the output from the lexical, syntactic, semantic, generation, and optimization stages.
 
-3. **Realizar análisis:**
-   - Clic en "Análisis Léxico" para tokenizar el código
-   - Clic en "Análisis Sintáctico" para generar el árbol sintáctico
+## Supported language concepts
 
-4. **Ver resultados:**
-   - Los tokens aparecen en el panel superior derecho
-   - El árbol sintáctico en texto en el panel medio derecho
-   - La tabla de símbolos en el panel inferior derecho
-   - El diagrama visual se abre automáticamente
+The educational language includes:
 
-## 📝 Gramática Soportada
+- Integer, floating-point, string, and boolean values
+- Variable declarations and assignments
+- Arithmetic, logical, and comparison operators
+- `if`/`else`, `for`, and `while` control structures
+- Increment, decrement, and ternary expressions
+- A `print` instruction
 
-### Palabras Reservadas
-```
-if, else, for, while, int, float, string
-```
+Example:
 
-### Tipos de Datos
-- **Enteros**: `123`, `456`
-- **Flotantes**: `3.14`, `2.5`
-- **Cadenas**: `"Hola mundo"`
-- **Identificadores**: `variable`, `contador`
-
-### Operadores
-
-#### Aritméticos
-```
-+  (suma)
--  (resta)
-*  (multiplicación)
-/  (división)
--- (decremento)
-```
-
-#### Lógicos
-```
-&& (AND lógico)
-|| (OR lógico)
-```
-
-#### Comparación
-```
-<  (menor que)
->  (mayor que)
-== (igual)
-!= (no igual)
-```
-
-#### Especiales
-```
-?  : (operador ternario)
-=  (asignación)
-```
-
-### Estructuras de Control
-
-#### Condicionales
 ```c
-if (condicion) {
-    // código
-}
+int counter;
+counter = 0;
 
-if (condicion) {
-    // código
-} else {
-    // código alternativo
+while (counter < 5) {
+    print(counter);
+    counter++;
 }
 ```
 
-#### Bucles
-```c
-for (inicio; condicion; incremento) {
-    // código
-}
+## Scope and limitations
 
-while (condicion) {
-    // código
-}
-```
+This is an academic compiler project rather than a production compiler. Its grammar, semantic model, optimizer, and machine-code workflow intentionally support a limited teaching language. The executable-generation path also depends on a Windows toolchain with NASM and GCC configured locally.
 
-#### Operador Ternario
-```c
-resultado = condicion ? valor_si_true : valor_si_false;
-```
+## Credits and contributions
 
-## 🏗️ Componentes del Proyecto
+This application was developed as a team project for a compilers course at Universidad Mariano Gálvez de Guatemala. The complete project history and contributor list are preserved in the original repository and this fork.
 
-### 📁 Estructura de Archivos
+Oscar Chitay's recorded contributions include:
 
-```
-p1-copiler/
-│
-├── main.py          # Interfaz gráfica principal
-├── lexico.py        # Analizador léxico (tokens)
-├── sintactico.py    # Analizador sintáctico (gramática)
-├── diagram.py       # Generador de diagramas
-├── parsetab.py      # Tabla de análisis generada por PLY
-├── parser.out       # Información de estados del parser
-└── README.md        # Documentación del proyecto
-```
+- Decrement operator support
+- Ternary operator and colon handling
+- Project documentation
 
-### 🔍 `lexico.py`
-- Define todos los tokens del lenguaje
-- Implementa reglas de reconocimiento léxico
-- Maneja palabras reservadas e identificadores
-- Procesa literales numéricos y de cadena
+Original project: [MonjeBmo/p1-copiler](https://github.com/MonjeBmo/p1-copiler)
 
-### 🌳 `sintactico.py`
-- Define la gramática del lenguaje
-- Implementa reglas de precedencia de operadores
-- Construye árboles sintácticos abstractos
-- Maneja estructuras de control y expresiones
-
-### 🎨 `diagram.py`
-- Genera diagramas visuales de árboles sintácticos
-- Utiliza Graphviz para renderizado
-- Crea representaciones jerárquicas claras
-
-### 🖥️ `main.py`
-- Interfaz gráfica con Tkinter
-- Editor de código con funcionalidades básicas
-- Integra análisis léxico y sintáctico
-- Muestra resultados y tabla de símbolos
-
-## 📚 Ejemplos de Código
-
-### Ejemplo 1: Declaraciones y Asignaciones
-```c
-int x;
-float y;
-string nombre;
-x = 10;
-y = 3.14;
-nombre = "Hola";
-```
-
-### Ejemplo 2: Estructuras de Control
-```c
-int contador;
-contador = 0;
-
-if (contador < 10) {
-    contador = contador + 1;
-}
-
-while (contador > 0) {
-    contador--;
-}
-
-for (int i = 0; i < 5; i++) {
-    // código del bucle
-}
-```
-
-### Ejemplo 3: Operador Ternario
-```c
-int a;
-int b;
-int mayor;
-mayor = a > b ? a : b;
-```
-
-### Ejemplo 4: Expresiones Complejas
-```c
-int resultado;
-resultado = (a + b) * c && d || e == f;
-```
-
-## 🔬 Análisis Implementado
-
-### Análisis Léxico
-- ✅ Reconocimiento de tokens
-- ✅ Identificación de palabras reservadas
-- ✅ Procesamiento de literales
-- ✅ Manejo de operadores
-- ✅ Detección de errores léxicos
-
-### Análisis Sintáctico
-- ✅ Construcción de AST
-- ✅ Validación de sintaxis
-- ✅ Precedencia de operadores
-- ✅ Estructuras de control
-- ✅ Expresiones complejas
-- ✅ Operador ternario
-- ✅ Operadores de decremento
-
-### Características Adicionales
-- ✅ Tabla de símbolos
-- ✅ Visualización de árboles
-- ✅ Interfaz gráfica intuitiva
-- ✅ Exportación de diagramas
-
-## 🎯 Casos de Uso
-
-Este compilador es ideal para:
-
-- **Aprendizaje**: Entender conceptos de compiladores
-- **Prototipado**: Desarrollo rápido de analizadores
-- **Educación**: Enseñanza de análisis léxico/sintáctico
-- **Investigación**: Base para extensiones más complejas
-
-## 🐛 Manejo de Errores
-
-### Errores Léxicos
-```
-Carácter ilegal: @ en la posición 15
-```
-
-### Errores Sintácticos
-```
-Error sintáctico en 'token_problemático'
-```
-
-## 🔄 Resolución de Conflictos
-
-El analizador maneja automáticamente:
-- Conflictos shift/reduce
-- Precedencia de operadores
-- Asociatividad de expresiones
-
-## 🚧 Limitaciones Actuales
-
-- No implementa análisis semántico
-- No genera código objeto
-- Tabla de símbolos básica (sin ámbitos)
-- Sin optimizaciones
-
-## 🔮 Extensiones Futuras
-
-- [ ] Análisis semántico completo
-- [ ] Generación de código intermedio
-- [ ] Manejo de funciones
-- [ ] Ámbitos de variables
-- [ ] Tipos de datos complejos (arrays, structs)
-- [ ] Optimizaciones del compilador
-
-## 🛠️ Desarrollo
-
-### Ejecutar en Modo Desarrollo
-```bash
-python -u main.py
-```
-
-### Limpiar Archivos Generados
-```bash
-rm -f parser.out parsetab.py
-rm -rf __pycache__/
-```
-
-### Regenerar Parser
-```bash
-python sintactico.py
-```
-
-## 📊 Estadísticas del Proyecto
-
-- **Tokens soportados**: 25+
-- **Reglas gramaticales**: 40+
-- **Líneas de código**: ~500
-- **Archivos**: 4 principales + generados
-
-## 🤝 Contribución
-
-1. Fork el proyecto
-2. Crear una rama feature (`git checkout -b feature/AmazingFeature`)
-3. Commit los cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir un Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
-
-## 👨‍💻 Autor
-
-**Oscar Chitay**
-- GitHub: [@OscarChitay](https://github.com/OscarChitay)
-- Email: [tu-email@ejemplo.com]
-
-## 🙏 Agradecimientos
-
-- PLY (Python Lex-Yacc) por las herramientas de análisis
-- Graphviz por la visualización de grafos
-- Comunidad de Python por las librerías
-
----
-
-## 📞 Soporte
-
-Si encuentras algún problema o tienes preguntas:
-
-1. Revisa los [Issues](https://github.com/OscarChitay/p1-copiler/issues) existentes
-2. Crea un nuevo Issue si es necesario
-3. Proporciona código de ejemplo que reproduzca el problema
-
----
-
-*Desarrollado como parte del curso de Compiladores - Universidad Mariano Gálvez*
+This fork: [OscarChitay/p1-copiler](https://github.com/OscarChitay/p1-copiler)
